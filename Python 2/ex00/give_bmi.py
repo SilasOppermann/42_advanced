@@ -2,44 +2,31 @@ import numpy as np
 
 
 def _check_number_list(values: list, name: str) -> None:
-    """Raise an error if `values` is not a list of int/float numbers.
-
-    Small private helper (the leading underscore means "internal use"),
-    so both public functions can share the same validation.
-    """
+    """Raise TypeError unless values is a list of int/float."""
     if not isinstance(values, list):
-        raise TypeError(f"{name} must be a list")
+        raise TypeError(f"{name}-List must be a list, DUH!")
     for v in values:
-        # bool is a subclass of int in Python (True == 1), so we have to
-        # reject it explicitly, otherwise [True, 2.0] would be accepted.
+        # bool is a subclass of int in Python -> have to reject it explicitly
         if isinstance(v, bool) or not isinstance(v, (int, float)):
-            raise TypeError(f"{name} must only contain int or float")
+            raise TypeError(f"{name}-List must only contain int or float")
 
 
 def give_bmi(height: list[int | float],
              weight: list[int | float]) -> list[int | float]:
-    """Return the list of BMI values (weight / height²) for each person.
-
-    Returns an empty list and prints an error message if the input
-    is invalid (wrong type, different sizes, non-positive height).
-    """
+    """Return the BMI for each height/weight pair."""
     try:
         _check_number_list(height, "height")
         _check_number_list(weight, "weight")
         if len(height) != len(weight):
-            raise ValueError("height and weight must have the same size")
-
-        # Convert the Python lists into numpy arrays. With numpy, math
-        # operators work element by element ("vectorized"), so no loop
-        # is needed: h ** 2 squares every height at once.
+            raise ValueError("Lists are not the same Length")
+        # numpy vectorizes the list, so operations apply to all
+        # elements at once without  for loop
         h = np.array(height, dtype=float)
         w = np.array(weight, dtype=float)
-        if np.any(h <= 0):
-            raise ValueError("height values must be greater than 0")
+        if np.any((h <= 0) | (w <= 0)):
+            raise ValueError("height and weight values must be greater than 0")
 
-        bmi = w / h ** 2
-        # .tolist() converts the numpy array back to a normal Python list
-        # (the subject expects <class 'list'>, not numpy.ndarray).
+        bmi = w / h ** 2  # this is a vector now
         return bmi.tolist()
     except (TypeError, ValueError) as error:
         print(f"Error: {error}")
@@ -47,14 +34,11 @@ def give_bmi(height: list[int | float],
 
 
 def apply_limit(bmi: list[int | float], limit: int) -> list[bool]:
-    """Return a list of booleans: True where the BMI is above `limit`."""
+    """Return True for each BMI above limit, else False."""
     try:
         _check_number_list(bmi, "bmi")
         if isinstance(limit, bool) or not isinstance(limit, (int, float)):
             raise TypeError("limit must be an int or float")
-
-        # Comparing a numpy array with a number gives an array of bools,
-        # e.g. np.array([22.5, 29.0]) > 26  ->  array([False, True]).
         return (np.array(bmi, dtype=float) > limit).tolist()
     except (TypeError, ValueError) as error:
         print(f"Error: {error}")
@@ -62,8 +46,21 @@ def apply_limit(bmi: list[int | float], limit: int) -> list[bool]:
 
 
 def main():
-    """Nothing to run: this file is a module meant to be imported."""
-    pass
+    """Run sample and error cases."""
+    height = [2.71, 1.15]
+    weight = [165.3, 38.4]
+
+    bmi = give_bmi(height, weight)
+    print(bmi, type(bmi))
+    print(apply_limit(bmi, 26))
+
+    print("--- error cases ---")
+    print(give_bmi([1.8, 1.7], [80]))          # different sizes
+    print(give_bmi([1.8, "a"], [80, 70]))      # not a number
+    print(give_bmi("hello", [80]))             # not a list
+    print(give_bmi([0, 1.7], [80, 70]))        # height 0 -> /0
+    print(apply_limit([20, 30], "26"))         # bad limit
+    return
 
 
 if __name__ == "__main__":

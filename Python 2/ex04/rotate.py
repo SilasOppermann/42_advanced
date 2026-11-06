@@ -4,12 +4,8 @@ from load_image import ft_load
 
 
 def ft_transpose(matrix: np.ndarray) -> np.ndarray:
-    """Return the transpose of a 2D array, done by hand (no library).
-
-    Transposing swaps rows and columns: the value at [row][col] moves
-    to [col][row]. So the first row becomes the first column, etc.
-    Visually that is a mirror along the top-left -> bottom-right diagonal.
-    """
+    """Return the transpose of a 2D array, done by hand."""
+    # [row][col] moves to [col][row]: a mirror along the main diagonal.
     rows = len(matrix)
     cols = len(matrix[0])
     # The result has the opposite shape: (cols, rows).
@@ -21,7 +17,7 @@ def ft_transpose(matrix: np.ndarray) -> np.ndarray:
 
 
 def main():
-    """Load animal.jpeg, cut a square, transpose it and display it."""
+    """Load animal.jpeg, crop, transpose and display it."""
     try:
         image = ft_load("animal.jpeg")
         if image is None:
